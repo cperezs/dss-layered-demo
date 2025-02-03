@@ -79,19 +79,19 @@ class MainWindow(QMainWindow):
         self.book_list.clear()
         # Fetch books from the database and add to the list
         for book in self.bookstore.get_books():
-            self.book_list.addItem(f"{book[0]} by {book[1]} - ${book[2]}")
+            self.book_list.addItem(f"{book[1]} by {book[2]} - ${book[3]}")
     
     def search_book(self):
         search_query = self.search_input.text().lower()
         self.book_list.clear()
         # Fetch books from the database and add to the list
         for book in self.bookstore.search_books(search_query):
-            self.book_list.addItem(f"{book[0]} by {book[1]} - ${book[2]}")
+            self.book_list.addItem(f"{book[1]} by {book[2]} - ${book[3]}")
     
     def delete_book(self):
         delete_query = self.delete_input.text().lower()
         # Delete book from the database
-        self.bookstore.delete_book(delete_query)
+        self.bookstore.delete_book_by_title(delete_query)
         self.update_book_list()
         self.delete_input.clear()
     

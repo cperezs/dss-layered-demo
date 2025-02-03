@@ -16,6 +16,9 @@ class Bookstore:
     def search_books(self, search_query):
         return self.repository.search_books(search_query)
 
-    def delete_book(self, title):
-        self.repository.delete_book(title)
+    def delete_book_by_title(self, title):
+        self.repository.delete_book_by_title(title)
+    
+    def delete_book_by_id(self, book_id):
+        self.repository.delete_book_by_id(book_id)
 # --------------------------------

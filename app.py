@@ -8,6 +8,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Bookstore App")
         self.setGeometry(100, 100, 400, 300)
         
+        self.books = []
         self.initUI()
 
     def initUI(self):
@@ -38,10 +39,21 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(layout)
     
     def add_book(self):
-        pass
+        title = self.title_input.text()
+        author = self.author_input.text()
+        price = self.price_input.text()
+        
+        if title and author and price:
+            self.books.append({"title": title, "author": author, "price": price})
+            self.update_book_list()
+            self.title_input.clear()
+            self.author_input.clear()
+            self.price_input.clear()
     
     def update_book_list(self):
-        pass
+        self.book_list.clear()
+        for book in self.books:
+            self.book_list.addItem(f"{book['title']} by {book['author']} - ${book['price']}")
 
 # Run the application
 if __name__ == "__main__":

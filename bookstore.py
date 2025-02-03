@@ -1,26 +1,21 @@
-import sqlite3
+from bookstore_repository import BookstoreRepository
 
 # --------------------------------
-# CHANGE: Created a separate Business Logic Layer
+# CHANGE: Bookstore class now uses the Repository
 # --------------------------------
 class Bookstore:
-    def __init__(self, db_path="books.db"):
-        self.conn = sqlite3.connect(db_path)
-        self.cursor = self.conn.cursor()
+    def __init__(self, repository: BookstoreRepository):
+        self.repository = repository
 
     def add_book(self, title, author, price):
-        self.cursor.execute("INSERT INTO books (title, author, price) VALUES (?, ?, ?)", (title, author, price))
-        self.conn.commit()
+        self.repository.add_book(title, author, price)
 
     def get_books(self):
-        self.cursor.execute("SELECT title, author, price FROM books")
-        return self.cursor.fetchall()
+        return self.repository.get_books()
 
     def search_books(self, search_query):
-        self.cursor.execute("SELECT title, author, price FROM books WHERE LOWER(title) LIKE ?", (f"%{search_query}%",))
-        return self.cursor.fetchall()
+        return self.repository.search_books(search_query)
 
     def delete_book(self, title):
-        self.cursor.execute("DELETE FROM books WHERE LOWER(title) = ?", (title.lower(),))
-        self.conn.commit()
+        self.repository.delete_book(title)
 # --------------------------------

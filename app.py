@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QListWidget, QLineEdit, QLabel, QHBoxLayout
 import sys
 from bookstore import Bookstore
+from bookstore_repository import BookstoreRepository
 
 # PyQt6 UI Class
 # --------------------------------
@@ -13,7 +14,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 400, 300)
         
         # Initialize the Business Logic Layer
-        self.bookstore = Bookstore()
+        self.bookstore = Bookstore(BookstoreRepository())
         self.initUI()
         self.update_book_list()
 

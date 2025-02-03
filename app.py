@@ -1,22 +1,21 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QListWidget, QLineEdit, QLabel, QHBoxLayout
 import sys
-import sqlite3
+from bookstore import Bookstore
 
-# PyQt6 UI Class with embedded logic
+# PyQt6 UI Class
+# --------------------------------
+# CHANGE: Created a separate Presentation Layer
+# --------------------------------
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Bookstore App")
         self.setGeometry(100, 100, 400, 300)
         
-        # --------------------------------
-        # CHANGE: Connect to database instead of using a list
-        # --------------------------------
-        self.conn = sqlite3.connect("books.db")
-        self.cursor = self.conn.cursor()
+        # Initialize the Business Logic Layer
+        self.bookstore = Bookstore()
         self.initUI()
         self.update_book_list()
-        # --------------------------------
 
     def initUI(self):
         central_widget = QWidget()
@@ -63,17 +62,14 @@ class MainWindow(QMainWindow):
         
         central_widget.setLayout(layout)
     
-    # --------------------------------
-    # CHANGE: Updated functionalities to use database
-    # --------------------------------
     def add_book(self):
         title = self.title_input.text()
         author = self.author_input.text()
         price = self.price_input.text()
         
         if title and author and price:
-            self.cursor.execute("INSERT INTO books (title, author, price) VALUES (?, ?, ?)", (title, author, price))
-            self.conn.commit()
+            # Add book to the database
+            self.bookstore.add_book(title, author, price)
             self.update_book_list()
             self.title_input.clear()
             self.author_input.clear()
@@ -81,25 +77,24 @@ class MainWindow(QMainWindow):
     
     def update_book_list(self):
         self.book_list.clear()
-        self.cursor.execute("SELECT title, author, price FROM books")
-        for book in self.cursor.fetchall():
+        # Fetch books from the database and add to the list
+        for book in self.bookstore.get_books():
             self.book_list.addItem(f"{book[0]} by {book[1]} - ${book[2]}")
     
     def search_book(self):
         search_query = self.search_input.text().lower()
         self.book_list.clear()
-        self.cursor.execute("SELECT title, author, price FROM books WHERE LOWER(title) LIKE ?", (f"%{search_query}%",))
-        for book in self.cursor.fetchall():
+        # Fetch books from the database and add to the list
+        for book in self.bookstore.search_books(search_query):
             self.book_list.addItem(f"{book[0]} by {book[1]} - ${book[2]}")
     
     def delete_book(self):
         delete_query = self.delete_input.text().lower()
-        self.cursor.execute("DELETE FROM books WHERE LOWER(title) = ?", (delete_query,))
-        self.conn.commit()
+        # Delete book from the database
+        self.bookstore.delete_book(delete_query)
         self.update_book_list()
         self.delete_input.clear()
-    # --------------------------------
-
+    
     def showEvent(self, event):
         super().showEvent(event)
         self.update_book_list()

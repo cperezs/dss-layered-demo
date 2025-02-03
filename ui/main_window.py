@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QListWidget, QLineEdit, QLabel, QHBoxLayout
 
-from logic.bookstore import Bookstore
+from services.bookstore_service import BookstoreService
 
 # PyQt6 UI Class
 # --------------------------------
@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 400, 300)
         
         # Initialize the Business Logic Layer
-        self.bookstore = Bookstore()
+        self.bookstore = BookstoreService()
         self.initUI()
         self.update_book_list()
 
@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
     def update_book_list(self):
         self.book_list.clear()
         # Fetch books from the database and add to the list
-        for book in self.bookstore.get_books():
+        for book in self.bookstore.get_books(user_type="vip"):
             self.book_list.addItem(f"{book[1]} by {book[2]} - ${book[3]}")
     
     def search_book(self):

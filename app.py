@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 400, 300)
         
         # --------------------------------
-        # CHANGE: Added sample data for demonstration
+        # Sample data for demonstration
         # --------------------------------
         self.books = [
             {"title": "Dune", "author": "Frank Herbert", "price": "9.99"},
@@ -53,9 +53,6 @@ class MainWindow(QMainWindow):
         add_button.clicked.connect(self.add_book)
         layout.addWidget(add_button)
         
-        # --------------------------------
-        # CHANGE: Added search text input and button
-        # --------------------------------
         search_layout = QHBoxLayout()
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Search Book Title")
@@ -64,6 +61,18 @@ class MainWindow(QMainWindow):
         search_layout.addWidget(self.search_input)
         search_layout.addWidget(self.search_button)
         layout.addLayout(search_layout)
+        
+        # --------------------------------
+        # CHANGE: Added delete functionality
+        # --------------------------------
+        delete_layout = QHBoxLayout()
+        self.delete_input = QLineEdit()
+        self.delete_input.setPlaceholderText("Title to delete")
+        self.delete_button = QPushButton("Delete")
+        self.delete_button.clicked.connect(self.delete_book)
+        delete_layout.addWidget(self.delete_input)
+        delete_layout.addWidget(self.delete_button)
+        layout.addLayout(delete_layout)
         # --------------------------------
         
         central_widget.setLayout(layout)
@@ -85,24 +94,26 @@ class MainWindow(QMainWindow):
         for book in self.books:
             self.book_list.addItem(f"{book['title']} by {book['author']} - ${book['price']}")
     
-    # --------------------------------
-    # CHANGE: Added search functionality
-    # --------------------------------
     def search_book(self):
         search_query = self.search_input.text().lower()
         self.book_list.clear()
         for book in self.books:
             if search_query in book['title'].lower():
                 self.book_list.addItem(f"{book['title']} by {book['author']} - ${book['price']}")
+    
+    # --------------------------------
+    # CHANGE: Added delete functionality
+    # --------------------------------
+    def delete_book(self):
+        delete_query = self.delete_input.text().lower()
+        self.books = [book for book in self.books if book['title'].lower() != delete_query]
+        self.update_book_list()
+        self.delete_input.clear()
     # --------------------------------
 
-    # --------------------------------
-    # CHANGE: Load data when window is shown
-    # --------------------------------
     def showEvent(self, event):
         super().showEvent(event)
         self.update_book_list()
-    # --------------------------------
 
 # Run the application
 if __name__ == "__main__":

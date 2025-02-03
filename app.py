@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QListWidget, QLineEdit, QLabel, QHBoxLayout
 import sys
+import sqlite3
 
 # PyQt6 UI Class with embedded logic
 class MainWindow(QMainWindow):
@@ -9,24 +10,13 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 400, 300)
         
         # --------------------------------
-        # Sample data for demonstration
+        # CHANGE: Connect to database instead of using a list
         # --------------------------------
-        self.books = [
-            {"title": "Dune", "author": "Frank Herbert", "price": "9.99"},
-            {"title": "Neuromancer", "author": "William Gibson", "price": "8.99"},
-            {"title": "Foundation", "author": "Isaac Asimov", "price": "7.99"},
-            {"title": "The Left Hand of Darkness", "author": "Ursula K. Le Guin", "price": "6.99"},
-            {"title": "Snow Crash", "author": "Neal Stephenson", "price": "10.99"},
-            {"title": "Hyperion", "author": "Dan Simmons", "price": "9.49"},
-            {"title": "2001: A Space Odyssey", "author": "Arthur C. Clarke", "price": "8.49"},
-            {"title": "Kindred", "author": "Octavia Butler", "price": "7.99"},
-            {"title": "Binti", "author": "Nnedi Okorafor", "price": "6.49"},
-            {"title": "The Broken Earth", "author": "N.K. Jemisin", "price": "9.99"},
-            {"title": "A Door Into Ocean", "author": "Joan Slonczewski", "price": "8.79"},
-            {"title": "China Mountain Zhang", "author": "Maureen F. McHugh", "price": "7.59"}
-        ]
-        # --------------------------------
+        self.conn = sqlite3.connect("books.db")
+        self.cursor = self.conn.cursor()
         self.initUI()
+        self.update_book_list()
+        # --------------------------------
 
     def initUI(self):
         central_widget = QWidget()
@@ -62,9 +52,6 @@ class MainWindow(QMainWindow):
         search_layout.addWidget(self.search_button)
         layout.addLayout(search_layout)
         
-        # --------------------------------
-        # CHANGE: Added delete functionality
-        # --------------------------------
         delete_layout = QHBoxLayout()
         self.delete_input = QLineEdit()
         self.delete_input.setPlaceholderText("Title to delete")
@@ -73,17 +60,20 @@ class MainWindow(QMainWindow):
         delete_layout.addWidget(self.delete_input)
         delete_layout.addWidget(self.delete_button)
         layout.addLayout(delete_layout)
-        # --------------------------------
         
         central_widget.setLayout(layout)
     
+    # --------------------------------
+    # CHANGE: Updated functionalities to use database
+    # --------------------------------
     def add_book(self):
         title = self.title_input.text()
         author = self.author_input.text()
         price = self.price_input.text()
         
         if title and author and price:
-            self.books.append({"title": title, "author": author, "price": price})
+            self.cursor.execute("INSERT INTO books (title, author, price) VALUES (?, ?, ?)", (title, author, price))
+            self.conn.commit()
             self.update_book_list()
             self.title_input.clear()
             self.author_input.clear()
@@ -91,22 +81,21 @@ class MainWindow(QMainWindow):
     
     def update_book_list(self):
         self.book_list.clear()
-        for book in self.books:
-            self.book_list.addItem(f"{book['title']} by {book['author']} - ${book['price']}")
+        self.cursor.execute("SELECT title, author, price FROM books")
+        for book in self.cursor.fetchall():
+            self.book_list.addItem(f"{book[0]} by {book[1]} - ${book[2]}")
     
     def search_book(self):
         search_query = self.search_input.text().lower()
         self.book_list.clear()
-        for book in self.books:
-            if search_query in book['title'].lower():
-                self.book_list.addItem(f"{book['title']} by {book['author']} - ${book['price']}")
+        self.cursor.execute("SELECT title, author, price FROM books WHERE LOWER(title) LIKE ?", (f"%{search_query}%",))
+        for book in self.cursor.fetchall():
+            self.book_list.addItem(f"{book[0]} by {book[1]} - ${book[2]}")
     
-    # --------------------------------
-    # CHANGE: Added delete functionality
-    # --------------------------------
     def delete_book(self):
         delete_query = self.delete_input.text().lower()
-        self.books = [book for book in self.books if book['title'].lower() != delete_query]
+        self.cursor.execute("DELETE FROM books WHERE LOWER(title) = ?", (delete_query,))
+        self.conn.commit()
         self.update_book_list()
         self.delete_input.clear()
     # --------------------------------

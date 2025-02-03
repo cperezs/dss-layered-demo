@@ -1,11 +1,11 @@
-from bookstore_repository import BookstoreRepository
+from repositories.bookstore_repository import BookstoreRepository
 
 # --------------------------------
 # CHANGE: Bookstore class now uses the Repository
 # --------------------------------
 class Bookstore:
-    def __init__(self, repository: BookstoreRepository):
-        self.repository = repository
+    def __init__(self):
+        self.repository = BookstoreRepository()
 
     def add_book(self, title, author, price):
         self.repository.add_book(title, author, price)

@@ -28,7 +28,7 @@ class BookstoreService:
         self.bookstore.add_book(title, author, price)
     
     def delete_book_by_title(self, title):
-        self.bookstore.delete_book(title)
+        self.bookstore.delete_book_by_title(title)
     
     def delete_book_by_id(self, book_id):
         self.bookstore.delete_book_by_id(book_id)
